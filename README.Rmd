@@ -1,0 +1,82 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  cache = TRUE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# uklandusedata
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of uklandusedata is to show how to get open land data for mapping with open source software such as R and QGIS.
+
+It is a work in progress and does not aim to be comprehensive, it's a big topic!
+
+```{r}
+library(sf)
+library(tmap)
+tmap_mode("view")
+```
+
+
+# Choose region of interest
+
+We will get data for the following region (should work for any region in the UK):
+
+```{r}
+region = osmdata::getbb(place_name = "leeds", format_out = "sf_polygon")
+qtm(region$polygon$geometry[1])
+region = region$polygon$geometry[1]
+region_27700 = st_transform(region, 27700)
+```
+
+
+# Woodland grant scheme and wood-pasture and parkland inventory data
+
+To download data from the woodland grant and wood-pasture inventory datasets run the following code.
+
+```{r get-woodland-data, eval=FALSE}
+# source("r-code/get-estates-data.R")
+
+if(!file.exists("English_Woodland_Grant_Scheme.Rds")) {
+  download.file("https://github.com/Robinlovelace/uklandusedata/releases/download/0.0.1/English_Woodland_Grant_Scheme.Rds", "English_Woodland_Grant_Scheme.Rds")
+}
+
+w = readRDS("English_Woodland_Grant_Scheme.Rds")
+w_region = w[region_27700, ]
+qtm(w_region)
+saveRDS(w_region, "w_leeds.Rds")
+sf::write_sf(w_region, "w_leeds.gpkg")
+piggyback::pb_upload("w_leeds.Rds")
+piggyback::pb_upload("w_leeds.gpkg")
+```
+
+To get the data saved in the previous step for a specific region you can do:
+
+```{r rmap region}
+download.file(
+  "https://github.com/Robinlovelace/uklandusedata/releases/download/0.0.1/w_leeds.gpkg",
+  "w_leeds.gpkg"
+)
+w_region = sf::read_sf("w_leeds.gpkg")
+head(w_region)
+plot(w_region)
+```
+
+And to make an interactive map, try:
+
+```{r}
+tm_shape(w_region) +
+  tm_polygons("CurrStat") +
+  tm_basemap(leaflet::providers$CartoDB.Positron)
+```
+
