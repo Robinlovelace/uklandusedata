@@ -94,6 +94,7 @@ piggyback::pb_upload("landuse_farm_polygons.gpkg", overwrite = T)
 
 ```{r landuse}
 landuse_farm_polygons = sf::read_sf("landuse_farm_polygons.gpkg")
-
+tm_shape(landuse_farm_polygons) +
+  tm_polygons("source_nam")
 ```
 

@@ -100,3 +100,19 @@ tm_shape(w_region) +
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+## Data from OSM
+
+We can also get data from OpenStreetMap. A good way to do that is via
+the QuickOSM plugin in QGIS.
+
+From that the following dataset was generated:
+
+``` r
+landuse_farm_polygons = sf::read_sf("landuse_farm_polygons.gpkg")
+tm_shape(landuse_farm_polygons) +
+  tm_polygons("source_nam")
+#> Warning: The shape landuse_farm_polygons is invalid. See sf::st_is_valid
+```
+
+![](README_files/figure-gfm/landuse-1.png)<!-- -->
